@@ -90,8 +90,9 @@ class CaptchaGenerator:
         character_font = gen_rand_size_font(rand_font_path, self.font_size_range[0],
                                                  self.font_size_range[1])
         # Create an image of specified size, background color and character
-        image = create_image_char(image_size, background_color["color"], character,
+        original_image = create_image_char(image_size, background_color["color"], character,
                                     character_color, character_pos, character_font)
+        image = original_image.copy()
         # Random rotate the created image between -55º and +55º
         image = image.rotate(randint(-55, 55), fillcolor=background_color["color"])
         # Add some random lines to image
@@ -101,7 +102,7 @@ class CaptchaGenerator:
         if add_noise:
             add_rand_noise_to_image(image, 200)
         # Return the generated image
-        generated_captcha = {"image": image, "character": character}
+        generated_captcha = {"image": image, "character": character, "original": original_image}
         return generated_captcha
 
 
@@ -123,6 +124,7 @@ class CaptchaGenerator:
         # Generate 4 one-character images with a random char color in contrast to the generated 
         # background, a random font and font size, and random position-rotation
         one_char_images = []
+        one_char_images_originals = []
         image_characters = ""
         for _ in range(0, 4):
             # Generate a RGB background color for each iteration if multicolor enabled
@@ -132,11 +134,13 @@ class CaptchaGenerator:
             # and a random position for it
             captcha = self.gen_captcha_char_image(self.one_char_image_size, image_background, \
                     chars_mode)
+            one_char_images_originals.append(captcha["original"])
             image = captcha["image"]
             image_characters = image_characters + captcha["character"]
             # Add the generated image to the list
             one_char_images.append(image)
         # Join the 4 characters images into one
+        original_image = self.images_join_horizontal(one_char_images_originals)
         image = self.images_join_horizontal(one_char_images)
         # Add one horizontal random line to full image
         for _ in range(0, DIFFICULT_LEVELS_VALUES[difficult_level][0]):
@@ -151,5 +155,5 @@ class CaptchaGenerator:
             new_image.paste(image, (0, int((self.captcha_size[1]/2) - (image.height/2))))
             image = new_image
         # Return generated image captcha
-        generated_captcha = {"image": image, "characters": image_characters}
+        generated_captcha = {"image": image, "characters": image_characters, "original": original_image}
         return generated_captcha
