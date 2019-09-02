@@ -1,0 +1,1 @@
+multicolor_captcha_generator

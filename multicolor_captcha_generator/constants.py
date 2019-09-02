@@ -1,0 +1,3 @@
+VERSION="0.1.0"
+DEFAULT_GEN_CAPTCHAS_FOLDER = "./captchas"
+DEFAULT_FONT = "arial.ttf"

@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+from multicolor_captcha_generator import CaptchaGenerator
+from multicolor_captcha_generator.constants import DEFAULT_GEN_CAPTCHAS_FOLDER
+from os import path, makedirs
+import argparse
+
+# Captcha image size number (2 -> 640x360)
+CAPCTHA_SIZE_NUM = 2
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--n', help='number of captchas to generate', default=20)
+    parser.add_argument('--multicolor', action="store_true", help='')
+    parser.add_argument('--difficult_level', type=int,
+                        choices=range(1, 6), help='', default=3)
+    parser.add_argument('--margin', action="store_true", help='')
+    parser.add_argument('--chars_mode', default='nums',
+                        choices=['nums', 'hex', 'ascii'], help='')
+    parser.add_argument('--captchas_folder',
+                        default=DEFAULT_GEN_CAPTCHAS_FOLDER, help='')
+
+    args = parser.parse_args()
+
+    # Create Captcha Generator object of specified size
+    CaptchaGen = CaptchaGenerator(CAPCTHA_SIZE_NUM)
+    # If it doesn't exists, create captchas folder to store generated captchas
+    if not path.exists(args.captchas_folder):
+        makedirs(args.captchas_folder)
+
+    for i in range(1, args.n + 1):
+        captcha = CaptchaGen.gen_captcha_image(multicolor=args.multicolor,
+                                               difficult_level=args.difficult_level,
+                                               margin=args.margin,
+                                               chars_mode=args.chars_mode)
+        # Use one of the following 9 captcha generation options
+        image = captcha['image']
+        characters = captcha['characters']
+        print("Generated captcha {}: {}".format(i, characters))
+        image.save(path.join(args.captchas_folder, "{}.png".format(str(i))))
+    print("Process completed. Check captchas images at \"{}\" folder.".format(
+        args.captchas_folder))
